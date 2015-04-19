@@ -1,0 +1,3 @@
+[submodule "libs/datetimepicker"]
+	path = libs/datetimepicker
+	url = git@github.com:dseuss/datetimepicker.git

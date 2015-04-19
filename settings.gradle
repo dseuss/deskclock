@@ -1,0 +1,2 @@
+include ':app', ':datetimepicker'
+project(':datetimepicker').projectDir = new File('libs/datetimepicker/app')
