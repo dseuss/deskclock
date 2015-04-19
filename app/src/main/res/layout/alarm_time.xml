@@ -112,6 +112,18 @@
                 android:layout_gravity="center_vertical|start"
                 style="@style/body"
                 android:textColor="@color/clock_white"/>
+            <CheckBox
+                android:id="@+id/light_onoff"
+                android:text="@string/light_alarm"
+                android:layout_height="48dp"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_gravity="center_vertical|start"
+                style="@style/body"
+                android:textColor="@color/clock_white"/>
             <LinearLayout
                 android:id="@+id/repeat_days"
                 android:layout_width="match_parent"

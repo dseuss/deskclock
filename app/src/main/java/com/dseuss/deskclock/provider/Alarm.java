@@ -57,7 +57,8 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
             VIBRATE,
             LABEL,
             RINGTONE,
-            DELETE_AFTER_USE
+            DELETE_AFTER_USE,
+            LIGHT_ALARM_ENABLED
     };
 
     /**
@@ -73,8 +74,9 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     private static final int LABEL_INDEX = 6;
     private static final int RINGTONE_INDEX = 7;
     private static final int DELETE_AFTER_USE_INDEX = 8;
+    private static final int LIGHT_ALARM_ENABLED_INDEX = 9;
 
-    private static final int COLUMN_COUNT = DELETE_AFTER_USE_INDEX + 1;
+    private static final int COLUMN_COUNT = LIGHT_ALARM_ENABLED_INDEX + 1;
 
     public static ContentValues createContentValues(Alarm alarm) {
         ContentValues values = new ContentValues(COLUMN_COUNT);
@@ -89,6 +91,8 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         values.put(VIBRATE, alarm.vibrate ? 1 : 0);
         values.put(LABEL, alarm.label);
         values.put(DELETE_AFTER_USE, alarm.deleteAfterUse);
+        values.put(LIGHT_ALARM_ENABLED, alarm.lightAlarmEnabled);
+
         if (alarm.alert == null) {
             // We want to put null, so default alarm changes
             values.putNull(RINGTONE);
@@ -226,6 +230,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     public String label;
     public Uri alert;
     public boolean deleteAfterUse;
+    public boolean lightAlarmEnabled;
 
     // Creates a default alarm at the current time.
     public Alarm() {
@@ -241,6 +246,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         this.label = "";
         this.alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         this.deleteAfterUse = false;
+        this.lightAlarmEnabled = false;
     }
 
     public Alarm(Cursor c) {
@@ -272,6 +278,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         label = p.readString();
         alert = (Uri) p.readParcelable(null);
         deleteAfterUse = p.readInt() == 1;
+        lightAlarmEnabled = p.readInt() == 1;
     }
 
     public String getLabelOrDefault(Context context) {
@@ -291,6 +298,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         p.writeString(label);
         p.writeParcelable(alert, flags);
         p.writeInt(deleteAfterUse ? 1 : 0);
+        p.writeInt(lightAlarmEnabled ? 1 : 0);
     }
 
     public int describeContents() {
@@ -349,6 +357,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
                 ", vibrate=" + vibrate +
                 ", label='" + label + '\'' +
                 ", deleteAfterUse=" + deleteAfterUse +
+                ", lightAlarmEnabled=" + lightAlarmEnabled +
                 '}';
     }
 }

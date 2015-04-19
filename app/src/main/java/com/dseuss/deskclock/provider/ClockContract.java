@@ -125,6 +125,12 @@ public final class ClockContract {
          * <p>Type: INTEGER</p>
          */
         public static final String DELETE_AFTER_USE = "delete_after_use";
+
+        /**
+         * Determine if alarm also raises the light alarm
+         * <p>Type: BOOLEAN</p>
+         */
+        public static final String LIGHT_ALARM_ENABLED = "enable_light_alarm";
     }
 
     /**
@@ -247,6 +253,12 @@ public final class ClockContract {
          * <p>Type: INTEGER</p>
          */
         public static final String ALARM_STATE = "alarm_state";
+
+        /**
+         * Enable light alarm
+         * <p>Type: INTEGER</p>
+         */
+        public static final String LIGHT_ALARM_ENABLED = "light_alarm_enabled";
     }
 
     /**
