@@ -258,6 +258,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         vibrate = c.getInt(VIBRATE_INDEX) == 1;
         label = c.getString(LABEL_INDEX);
         deleteAfterUse = c.getInt(DELETE_AFTER_USE_INDEX) == 1;
+        lightAlarmEnabled = c.getInt(LIGHT_ALARM_ENABLED_INDEX) == 1;
 
         if (c.isNull(RINGTONE_INDEX)) {
             // Should we be saving this with the current ringtone or leave it null
@@ -330,6 +331,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         result.mVibrate = vibrate;
         result.mLabel = label;
         result.mRingtone = alert;
+        result.mLightAlarmEnabled = lightAlarmEnabled;
         return result;
     }
 

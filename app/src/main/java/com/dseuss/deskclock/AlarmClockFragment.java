@@ -92,6 +92,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private static final int ANIMATION_DURATION = 300;
     private static final String KEY_EXPANDED_IDS = "expandedIds";
     private static final String KEY_REPEAT_CHECKED_IDS = "repeatCheckedIds";
+    private static final String KEY_LIGHT_CHECKED_IDS = "lightCheckedIds";
     private static final String KEY_RINGTONE_TITLE_CACHE = "ringtoneTitleCache";
     private static final String KEY_SELECTED_ALARMS = "selectedAlarms";
     private static final String KEY_DELETED_ALARM = "deletedAlarm";
@@ -163,11 +164,14 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
         long[] expandedIds = null;
         long[] repeatCheckedIds = null;
+        long[] lightCheckedIds = null;
         long[] selectedAlarms = null;
         Bundle previousDayMap = null;
+
         if (savedState != null) {
             expandedIds = savedState.getLongArray(KEY_EXPANDED_IDS);
             repeatCheckedIds = savedState.getLongArray(KEY_REPEAT_CHECKED_IDS);
+            lightCheckedIds = savedState.getLongArray(KEY_LIGHT_CHECKED_IDS);
             mRingtoneTitleCache = savedState.getBundle(KEY_RINGTONE_TITLE_CACHE);
             mDeletedAlarm = savedState.getParcelable(KEY_DELETED_ALARM);
             mUndoShowing = savedState.getBoolean(KEY_UNDO_SHOWING);
@@ -288,7 +292,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         }
 
         mAdapter = new AlarmItemAdapter(getActivity(),
-                expandedIds, repeatCheckedIds, selectedAlarms, previousDayMap, mAlarmsList);
+                expandedIds, repeatCheckedIds, lightCheckedIds, selectedAlarms, previousDayMap, mAlarmsList);
         mAdapter.registerDataSetObserver(new DataSetObserver() {
 
             private int prevAdapterCount = -1;
@@ -516,6 +520,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         super.onSaveInstanceState(outState);
         outState.putLongArray(KEY_EXPANDED_IDS, mAdapter.getExpandedArray());
         outState.putLongArray(KEY_REPEAT_CHECKED_IDS, mAdapter.getRepeatArray());
+        outState.putLongArray(KEY_LIGHT_CHECKED_IDS, mAdapter.getLightArray());
         outState.putLongArray(KEY_SELECTED_ALARMS, mAdapter.getSelectedAlarmsArray());
         outState.putBundle(KEY_RINGTONE_TITLE_CACHE, mRingtoneTitleCache);
         outState.putParcelable(KEY_DELETED_ALARM, mDeletedAlarm);
@@ -689,6 +694,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private final HashSet<Long> mExpanded = new HashSet<Long>();
         private final HashSet<Long> mRepeatChecked = new HashSet<Long>();
         private final HashSet<Long> mSelectedAlarms = new HashSet<Long>();
+        private final HashSet<Long> mLightChecked = new HashSet<Long>();
         private Bundle mPreviousDaysOfWeekMap = new Bundle();
 
         private final boolean mHasVibrator;
@@ -719,6 +725,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             TextView clickableLabel;
             CheckBox repeat;
             LinearLayout repeatDays;
+            CheckBox light;
             ViewGroup[] dayButtonParents = new ViewGroup[7];
             ToggleButton[] dayButtons = new ToggleButton[7];
             CheckBox vibrate;
@@ -749,8 +756,10 @@ public class AlarmClockFragment extends DeskClockFragment implements
         };
 
         public AlarmItemAdapter(Context context, long[] expandedIds, long[] repeatCheckedIds,
-                long[] selectedAlarms, Bundle previousDaysOfWeekMap, ListView list) {
+                long[] lightCheckedIds, long[] selectedAlarms, Bundle previousDaysOfWeekMap,
+                ListView list) {
             super(context, null, 0);
+
             mContext = context;
             mFactory = LayoutInflater.from(context);
             mList = list;
@@ -773,6 +782,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
             if (repeatCheckedIds != null) {
                 buildHashSetFromArray(repeatCheckedIds, mRepeatChecked);
+            }
+            if (lightCheckedIds != null) {
+                buildHashSetFromArray(lightCheckedIds, mLightChecked);
             }
             if (previousDaysOfWeekMap != null) {
                 mPreviousDaysOfWeekMap = previousDaysOfWeekMap;
@@ -992,6 +1004,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.repeatDays = (LinearLayout) view.findViewById(R.id.repeat_days);
             holder.collapseExpandArea = view.findViewById(R.id.collapse_expand);
             holder.footerFiller = view.findViewById(R.id.alarm_footer_filler);
+
             holder.footerFiller.setOnClickListener(new OnClickListener() {
 
                 @Override
@@ -1016,6 +1029,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
             holder.vibrate = (CheckBox) view.findViewById(R.id.vibrate_onoff);
             holder.ringtone = (TextView) view.findViewById(R.id.choose_ringtone);
+            holder.light = (CheckBox) view.findViewById(R.id.light_onoff);
 
             view.setTag(holder);
         }
@@ -1242,6 +1256,25 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     }
                 });
             }
+
+            if (mLightChecked.contains(alarm.id) || itemHolder.alarm.lightAlarmEnabled) {
+                itemHolder.light.setChecked(true);
+            } else {
+                itemHolder.light.setChecked(false);
+            }
+            itemHolder.light.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final boolean checked = ((CheckBox) view).isChecked();
+                    if (checked) {
+                        mLightChecked.add(alarm.id);
+                    } else {
+                        mLightChecked.remove(alarm.id);
+                    }
+                    alarm.lightAlarmEnabled = checked;
+                    asyncUpdateAlarm(alarm, false);
+                }
+            });
 
 
             if (!mHasVibrator) {
@@ -1654,6 +1687,16 @@ public class AlarmClockFragment extends DeskClockFragment implements
             int index = 0;
             long[] ids = new long[mRepeatChecked.size()];
             for (long id : mRepeatChecked) {
+                ids[index] = id;
+                index++;
+            }
+            return ids;
+        }
+
+        public long[] getLightArray() {
+            int index = 0;
+            long[] ids = new long[mLightChecked.size()];
+            for (long id : mLightChecked) {
                 ids[index] = id;
                 index++;
             }
